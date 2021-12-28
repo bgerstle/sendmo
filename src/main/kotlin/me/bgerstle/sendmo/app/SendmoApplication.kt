@@ -1,4 +1,4 @@
-package me.bgerstle.sendmo
+package me.bgerstle.sendmo.app
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
