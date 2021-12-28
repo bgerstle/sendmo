@@ -29,6 +29,10 @@ dependencies {
 	implementation("nl.hiddewieringa:money-kotlin:1.0.1")
 	implementation("org.zalando:jackson-datatype-money:1.3.0")
 
+	val coroutines_version = "1.5.1"
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines_version")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
 

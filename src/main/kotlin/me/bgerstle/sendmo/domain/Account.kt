@@ -1,6 +1,7 @@
 package me.bgerstle.sendmo.domain
 
 import nl.hiddewieringa.money.ofCurrency
+import org.javamoney.moneta.FastMoney
 import java.util.*
 
 typealias AccountID = UUID
@@ -30,7 +31,7 @@ data class AccountAggregate(
 ) : Account {
     public constructor(openedEvent: AccountOpened) : this(
         accountID = openedEvent.accountID,
-        balance = 0.0.ofCurrency(openedEvent.currency),
+        balance = (0.0).ofCurrency<FastMoney>(openedEvent.currency),
         accountStatus = AccountStatus.OPEN
     ) {}
 }
