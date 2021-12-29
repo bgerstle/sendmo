@@ -1,6 +1,5 @@
 package me.bgerstle.sendmo.app.account
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import me.bgerstle.sendmo.domain.Account
 import me.bgerstle.sendmo.domain.OpenAccount
 import me.bgerstle.sendmo.domain.ReactiveAccountService
@@ -11,36 +10,45 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Flux
 import java.util.*
 import javax.money.UnknownCurrencyException
 
-// TODO: add request ID to make the command idempotent
-data class OpenAccountRequestBody(val currencyCode: String)
-
 @Controller
+@RequestMapping("accounts")
 class AccountController(val accountService: ReactiveAccountService) {
+    data class OpenAccountRequest(val accountID: String, val currency: String)
+
     companion object {
         val log: Logger = LoggerFactory.getLogger(AccountController.javaClass)
     }
 
-    @PostMapping("/open")
-    fun openAccount(@RequestBody body: OpenAccountRequestBody): ResponseEntity<String> {
+    @GetMapping("/open")
+    fun openAccountForm(model: Model): String {
+        model.addAttribute(
+            "account",
+            OpenAccountRequest(
+                accountID = UUID.randomUUID().toString(),
+                currency = "USD"
+            )
+        )
+        return "accountForm"
+    }
+
+    @PostMapping("/open", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE])
+    fun openAccount(openAccountRequest: OpenAccountRequest): ResponseEntity<String> {
         try {
-            // TODO: Get account ID from client to ensure idempotency
             accountService.enqueue(
                 OpenAccount(
-                    accountID = UUID.randomUUID(),
-                    currency = body.currencyCode.asCurrency()
+                    accountID = UUID.fromString(openAccountRequest.accountID),
+                    currency = openAccountRequest.currency.asCurrency()
                 )
             )
 
-            // ???: listen for command reply?
+            // TODO: return Flux of command response
             return ResponseEntity.accepted().build()
         } catch (unknownCurrencyErr: UnknownCurrencyException) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown currency", unknownCurrencyErr)
@@ -48,6 +56,6 @@ class AccountController(val accountService: ReactiveAccountService) {
     }
 
     @ResponseBody
-    @GetMapping("/accounts", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    @GetMapping("/", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun accountsStream(): Flux<Collection<Account>> = accountService.accounts()
 }
