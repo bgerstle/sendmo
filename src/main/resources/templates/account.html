@@ -1,0 +1,12 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+  <title>Account Opened!</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+  <h1>Account Info:</h1>
+  <p th:text="'ID: ' + ${account.accountID}"/>
+  <p th:text="'Balance: ' + ${account.balance}"/>
+</body>
+</html>

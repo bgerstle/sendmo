@@ -8,8 +8,9 @@ typealias AccountID = UUID
 typealias Amount = javax.money.MonetaryAmount
 typealias Currency = javax.money.CurrencyUnit
 
-sealed interface AccountCommand {}
-data class OpenAccount(val accountID: AccountID, val currency: Currency) : AccountCommand {}
+sealed interface AccountCommand<Reply> {}
+
+data class OpenAccount(val accountID: AccountID, val currency: Currency) : AccountCommand<Account> {}
 
 sealed interface AccountEvent {}
 data class AccountOpened(val accountID: AccountID, val currency: Currency) : AccountEvent

@@ -14,6 +14,7 @@ import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import java.util.*
 import javax.money.UnknownCurrencyException
 
@@ -38,18 +39,21 @@ class AccountController(val accountService: ReactiveAccountService) {
         return "accountForm"
     }
 
-    @PostMapping("/open", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE])
-    fun openAccount(openAccountRequest: OpenAccountRequest): ResponseEntity<String> {
+    @PostMapping(
+        "/open",
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun openAccount(openAccountRequest: OpenAccountRequest, model: Model): Mono<String> {
         try {
-            accountService.enqueue(
+            return accountService.enqueue(
                 OpenAccount(
                     accountID = UUID.fromString(openAccountRequest.accountID),
                     currency = openAccountRequest.currency.asCurrency()
                 )
-            )
-
-            // TODO: return Flux of command response
-            return ResponseEntity.accepted().build()
+            ).map { account ->
+                model.addAttribute("account", account)
+                "account"
+            }
         } catch (unknownCurrencyErr: UnknownCurrencyException) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown currency", unknownCurrencyErr)
         }
