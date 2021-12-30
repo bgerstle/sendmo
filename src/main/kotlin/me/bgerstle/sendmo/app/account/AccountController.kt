@@ -76,6 +76,17 @@ class AccountController(val accountService: ReactiveAccountService) {
     }
 
     @ResponseBody
-    @GetMapping("/", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    @GetMapping("/stream", produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
     fun accountsStream(): Flux<Collection<Account>> = accountService.accounts()
+
+    @GetMapping("/")
+    fun accounts(model: Model): Mono<String> {
+        return accountService
+            .accounts()
+            .next()
+            .map { accounts ->
+                model.addAttribute("accounts", accounts)
+                "accounts"
+            }
+    }
 }

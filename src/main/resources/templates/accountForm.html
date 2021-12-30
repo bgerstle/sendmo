@@ -1,10 +1,11 @@
 <!DOCTYPE HTML>
 <html xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title>Open Account</title>
+    <title>Sendmo</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
+<h2>Open Account</h2>
 <form action="#" th:action="@{/accounts/open}" th:object="${account}" method="post">
     <p>ID: <input type="text" th:field="*{accountID}" /></p>
     <p>Currency: <input type="text" th:field="*{currency}" /></p>
