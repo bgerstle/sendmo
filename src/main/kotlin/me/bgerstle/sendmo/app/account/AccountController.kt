@@ -53,25 +53,32 @@ class AccountController(val accountService: ReactiveAccountService) {
             }
     }
 
-    @PostMapping(
-        "/open",
-        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE]
-    )
-    fun openAccount(openAccountRequest: OpenAccountRequest, model: Model): Mono<ResponseEntity<Unit>> {
+    @PostMapping("/open",
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ResponseBody
+    fun openAccount(@RequestBody openAccountRequest: OpenAccountRequest): Mono<Account> {
         try {
             return accountService.enqueue(
                 OpenAccount(
                     accountID = UUID.fromString(openAccountRequest.accountID),
                     currency = openAccountRequest.currency.asCurrency()
                 )
-            ).map { account ->
-                ResponseEntity
-                    .status(HttpStatus.FOUND)
-                    .header("Location", "/accounts/show/${account.accountID}")
-                    .build<Unit>()
-            }
+            )
         } catch (unknownCurrencyErr: UnknownCurrencyException) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown currency", unknownCurrencyErr)
+        }
+    }
+
+    @PostMapping("/open",
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
+        produces = [MediaType.TEXT_HTML_VALUE])
+    fun openAccount(openAccountRequest: OpenAccountRequest, model: Model): Mono<ResponseEntity<Unit>> {
+        return openAccount(openAccountRequest).map { account ->
+            ResponseEntity
+                .status(HttpStatus.FOUND)
+                .header("Location", "/accounts/show/${account.accountID}")
+                .build<Unit>()
         }
     }
 

@@ -9,7 +9,7 @@ import org.zalando.jackson.datatype.money.MoneyModule
 @SpringBootApplication
 class SendmoApplication {
 	@Bean
-	fun moneyModule(): Module = MoneyModule().withDefaultFormatting()
+	fun moneyModule(): Module = MoneyModule()
 }
 
 fun main(args: Array<String>) {
