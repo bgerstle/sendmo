@@ -16,31 +16,43 @@ repositories {
 }
 
 dependencies {
+	// Spring
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.springframework.boot:spring-boot-starter-rsocket")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
+	// Money
     implementation("org.javamoney:moneta:1.4.2")
 	implementation("nl.hiddewieringa:money-kotlin:1.0.1")
 	implementation("org.zalando:jackson-datatype-money:1.3.0")
 
+	// Kotlin
 	val coroutines_version = "1.5.1"
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines_version")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 
+	// Kafka
+	val kafkaVersion = "3.0.0"
+	implementation("org.apache.kafka:kafka-streams:$kafkaVersion")
+	implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
+	implementation("io.projectreactor.kafka:reactor-kafka:1.3.8")
+
+	// Testing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
-
 	val kotestVersion = "5.0.1"
 	testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
 	testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
 	testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
 	testImplementation("io.kotest:kotest-property:$kotestVersion")
+
+	testImplementation("org.apache.kafka:kafka-streams-test-utils:$kafkaVersion")
+
 }
 
 tasks.withType<KotlinCompile> {
