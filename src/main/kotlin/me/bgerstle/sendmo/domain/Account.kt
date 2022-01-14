@@ -1,5 +1,6 @@
 package me.bgerstle.sendmo.domain
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import nl.hiddewieringa.money.ofCurrency
 import org.javamoney.moneta.FastMoney
 import java.util.*
@@ -8,12 +9,20 @@ typealias AccountID = UUID
 typealias Amount = javax.money.MonetaryAmount
 typealias Currency = javax.money.CurrencyUnit
 
-sealed interface AccountCommand<Reply> {}
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+sealed class AccountReply
 
-data class OpenAccount(val accountID: AccountID, val currency: Currency) : AccountCommand<Account> {}
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+sealed class AccountCommand<Reply: AccountReply>
 
-sealed interface AccountEvent {}
-data class AccountOpened(val accountID: AccountID, val currency: Currency) : AccountEvent
+data class OpenAccount(val accountID: AccountID, val currency: Currency) : AccountCommand<OpenAccount.Reply>() {
+    sealed class Reply: AccountReply() {}
+    data class Success(val event: AccountOpened) : Reply()
+    data class Failure(val reason: Throwable) : Reply()
+}
+
+sealed class AccountEvent
+data class AccountOpened(val accountID: AccountID, val currency: Currency) : AccountEvent()
 
 enum class AccountStatus {
     OPEN

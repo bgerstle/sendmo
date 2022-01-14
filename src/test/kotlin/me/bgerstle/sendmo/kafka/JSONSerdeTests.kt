@@ -12,7 +12,7 @@ class JSONSerdeTests : FunSpec({
     val inputTopicName = "jsonserde-test-in"
     val outputTopicName = "jsonserde-test-out"
     val context = Context()
-    val testObjSerde = JSONSerde<TestObject>(TestObject::class.java)
+    val testObjSerde = JSONSerde<TestObject>()
 
     extension(KafkaStreamsTestListener(
         builderConfig = {
@@ -23,13 +23,13 @@ class JSONSerdeTests : FunSpec({
                 createInputTopic(
                     inputTopicName,
                     Serdes.Integer().serializer(),
-                    testObjSerde
+                    testObjSerde.serializer()
                 )
             context.outputTopic =
                 createOutputTopic(
                     outputTopicName,
                     Serdes.Integer().deserializer(),
-                    testObjSerde
+                    testObjSerde.deserializer()
                 )
         }))
 

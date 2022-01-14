@@ -18,8 +18,10 @@ repositories {
 dependencies {
 	// Spring
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
+	implementation("org.springframework.boot:spring-boot-configuration-processor")
 	implementation("org.springframework.boot:spring-boot-starter-rsocket")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+	implementation("org.springframework.kafka:spring-kafka")
 
 	// Money
     implementation("org.javamoney:moneta:1.4.2")
@@ -52,6 +54,7 @@ dependencies {
 	testImplementation("io.kotest:kotest-property:$kotestVersion")
 
 	testImplementation("org.apache.kafka:kafka-streams-test-utils:$kafkaVersion")
+	testImplementation("org.testcontainers:testcontainers:1.16.2")
 
 }
 

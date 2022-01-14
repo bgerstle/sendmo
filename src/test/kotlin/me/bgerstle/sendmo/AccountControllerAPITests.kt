@@ -34,17 +34,10 @@ class AccountControllerAPITests {
 				.exchange()
 				.expectStatus().isOk
 				.expectHeader().contentType(MediaType.APPLICATION_JSON)
-				.returnResult(AccountResponse::class.java)
+				.returnResult(String::class.java)
 				.getResponseBody()
 		)
-			.expectNext(AccountResponse(
-				accountID = request.accountID,
-				accountStatus = "OPEN",
-				balance = AccountResponse.Balance(
-					amount = 0.0.toBigDecimal(),
-					currency = "USD"
-				)
-			))
+			.expectNextCount(1)
 			.verifyComplete()
 	}
 }

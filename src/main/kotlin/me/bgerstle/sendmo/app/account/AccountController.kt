@@ -1,6 +1,7 @@
 package me.bgerstle.sendmo.app.account
 
 import me.bgerstle.sendmo.domain.Account
+import me.bgerstle.sendmo.domain.AccountReply
 import me.bgerstle.sendmo.domain.OpenAccount
 import me.bgerstle.sendmo.domain.ReactiveAccountService
 import nl.hiddewieringa.money.asCurrency
@@ -57,7 +58,7 @@ class AccountController(val accountService: ReactiveAccountService) {
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
-    fun openAccount(@RequestBody openAccountRequest: OpenAccountRequest): Mono<Account> {
+    fun openAccount(@RequestBody openAccountRequest: OpenAccountRequest): Mono<OpenAccount.Reply> {
         try {
             return accountService.enqueue(
                 OpenAccount(
@@ -74,11 +75,18 @@ class AccountController(val accountService: ReactiveAccountService) {
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
         produces = [MediaType.TEXT_HTML_VALUE])
     fun openAccount(openAccountRequest: OpenAccountRequest, model: Model): Mono<ResponseEntity<Unit>> {
-        return openAccount(openAccountRequest).map { account ->
-            ResponseEntity
-                .status(HttpStatus.FOUND)
-                .header("Location", "/accounts/show/${account.accountID}")
-                .build<Unit>()
+        return openAccount(openAccountRequest).map { reply ->
+            when (reply) {
+                is OpenAccount.Success -> {
+                    ResponseEntity
+                        .status(HttpStatus.FOUND)
+                        .header("Location", "/accounts/show/${reply.event.accountID}")
+                        .build<Unit>()
+                }
+                is OpenAccount.Failure -> {
+                    throw reply.reason
+                }
+            }
         }
     }
 

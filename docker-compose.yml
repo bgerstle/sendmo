@@ -2,21 +2,21 @@
 version: '2'
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.4.6 # current "latest"
+    image: confluentinc/cp-zookeeper:7.0.0
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
     # "`-._,-'"`-._,-'"`-._,-'"`-._,-'"`-._,-'"`-._,-'"`-._,-'"`-._,-'"`-._,-
-    # An important note about accessing Kafka from clients on other machines: 
+    # An important note about accessing Kafka from clients on other machines:
     # -----------------------------------------------------------------------
     #
     # The config used here exposes port 9092 for _external_ connections to the broker
     # i.e. those from _outside_ the docker network. This could be from the host machine
-    # running docker, or maybe further afield if you've got a more complicated setup. 
-    # If the latter is true, you will need to change the value 'localhost' in 
-    # KAFKA_ADVERTISED_LISTENERS to one that is resolvable to the docker host from those 
+    # running docker, or maybe further afield if you've got a more complicated setup.
+    # If the latter is true, you will need to change the value 'localhost' in
+    # KAFKA_ADVERTISED_LISTENERS to one that is resolvable to the docker host from those
     # remote clients
     #
     # For connections _internal_ to the docker network, such as from other services
@@ -25,7 +25,7 @@ services:
     # See https://rmoff.net/2018/08/02/kafka-listeners-explained/ for details
     # "`-._,-'"`-._,-'"`-._,-'"`-._,-'"`-._,-'"`-._,-'"`-._,-'"`-._,-'"`-._,-
     #
-    image: confluentinc/cp-kafka:5.4.6
+    image: confluentinc/cp-kafka:7.0.0
     depends_on:
       - zookeeper
     ports:
@@ -37,3 +37,6 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_NUM_PARTITIONS: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
