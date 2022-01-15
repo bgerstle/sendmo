@@ -17,8 +17,8 @@ class EmbeddedStreamsAppService(val kafkaConfig: KafkaConfig) {
     @EventListener
     fun on(event: ContextRefreshedEvent) {
         ifEnabled {
-            if (SendmoStreamsApp.streams.state() == KafkaStreams.State.CREATED) {
-                SendmoStreamsApp.start()
+            if (!SendmoStreamsApp.didStart) {
+                SendmoStreamsApp.start(kafkaConfig.bootstrapServers)
             }
         }
     }

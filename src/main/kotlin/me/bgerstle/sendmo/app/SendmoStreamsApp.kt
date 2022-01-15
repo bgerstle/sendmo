@@ -3,7 +3,9 @@ package me.bgerstle.sendmo.app
 import me.bgerstle.sendmo.app.account.*
 import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
+import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.kstream.KStream
+import org.springframework.kafka.config.KafkaStreamsConfiguration
 import java.util.*
 
 fun <K, V: Any> KStream<K, V?>.filterNotNull(): KStream<K, V> =
@@ -38,9 +40,17 @@ object SendmoStreamsApp {
                 .use(::load)
         }
 
-    val streams = KafkaStreams(topology, props)
+    lateinit var streams: KafkaStreams
 
-    fun start() {
+    val didStart: Boolean
+        get() = ::streams.isInitialized
+
+    fun start(overrideBootstrapServers: String? = null) {
+        overrideBootstrapServers?.let {
+            props.set(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, it)
+        }
+        streams = KafkaStreams(topology, props)
+
         // FIXME: not in prod!
         streams.cleanUp()
 
