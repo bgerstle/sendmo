@@ -9,13 +9,14 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.test.StepVerifier
+import java.time.Duration
 import java.util.*
 
 @SpringBootTest(
 	classes =  [SendmoApplication::class],
 	webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-@AutoConfigureWebTestClient
+@AutoConfigureWebTestClient(timeout = "PT30S")
 class AccountControllerAPITests {
 	@Autowired
 	private lateinit var client: WebTestClient
