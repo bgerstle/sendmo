@@ -31,26 +31,22 @@ object SendmoStreamsApp {
                 .toAccountEventStream()
         }.build()
 
-    val props =
+    private val props =
         Properties().apply {
             ClassLoader
                 .getSystemResourceAsStream("kafka.properties")
                 .use(::load)
         }
 
-    fun run() {
-        val streams = KafkaStreams(topology, props)
+    val streams = KafkaStreams(topology, props)
 
+    fun start() {
         // FIXME: not in prod!
         streams.cleanUp()
 
         streams.start()
         streams.stopOnShutdown()
     }
-}
-
-fun main(args: Array<String>) {
-    SendmoStreamsApp.run()
 }
 
 fun KafkaStreams.stopOnShutdown() {
@@ -62,4 +58,8 @@ fun KafkaStreams.stopOnShutdown() {
             println("Failed to stop streams: $ignored")
         }
     })
+}
+
+fun main(args: Array<String>) {
+    SendmoStreamsApp.start()
 }

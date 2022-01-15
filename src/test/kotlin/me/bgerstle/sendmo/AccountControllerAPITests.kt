@@ -26,6 +26,9 @@ class AccountControllerAPITests {
 			accountID = UUID.randomUUID().toString(),
 			currency = "USD"
 		)
+
+		// FIXME: use TestContainer & ensure app has started (w/ embedded stream processor?) and topics have been created
+
 		StepVerifier.create(
 			client.post()
 				.uri("/accounts/open")

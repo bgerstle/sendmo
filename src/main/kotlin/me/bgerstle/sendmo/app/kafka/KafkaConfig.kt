@@ -5,4 +5,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConfigurationProperties("kafka")
 @ConstructorBinding
-data class KafkaConfig(val bootstrapServers: String)
+data class KafkaConfig(
+    val bootstrapServers: String,
+    val embeddedStreamsAppEnabled: Boolean = false
+)
