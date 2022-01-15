@@ -54,8 +54,10 @@ dependencies {
 	testImplementation("io.kotest:kotest-property:$kotestVersion")
 
 	testImplementation("org.apache.kafka:kafka-streams-test-utils:$kafkaVersion")
-	testImplementation("org.testcontainers:testcontainers:1.16.2")
 
+	val testContainersVersion = "1.16.2"
+	testImplementation("org.testcontainers:testcontainers:$testContainersVersion")
+	testImplementation("org.testcontainers:kafka:$testContainersVersion")
 }
 
 tasks.withType<KotlinCompile> {
