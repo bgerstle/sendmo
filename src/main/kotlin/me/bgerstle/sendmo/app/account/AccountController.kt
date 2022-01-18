@@ -1,9 +1,7 @@
 package me.bgerstle.sendmo.app.account
 
-import me.bgerstle.sendmo.domain.Account
-import me.bgerstle.sendmo.domain.AccountReply
-import me.bgerstle.sendmo.domain.OpenAccount
-import me.bgerstle.sendmo.domain.ReactiveAccountService
+import kotlinx.coroutines.flow.MutableStateFlow
+import me.bgerstle.sendmo.domain.*
 import nl.hiddewieringa.money.asCurrency
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -22,6 +20,7 @@ import javax.money.UnknownCurrencyException
 @Controller
 @RequestMapping("accounts")
 class AccountController(val accountService: ReactiveAccountService) {
+
     data class OpenAccountRequest(val accountID: String, val currency: String)
 
     companion object {

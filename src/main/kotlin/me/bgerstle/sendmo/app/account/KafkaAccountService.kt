@@ -1,25 +1,37 @@
 package me.bgerstle.sendmo.app.account
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.reactor.asFlux
+import me.bgerstle.sendmo.app.account.KafkaAccountService.Topics.ACCOUNTS
 import me.bgerstle.sendmo.app.account.KafkaAccountService.Topics.ACCOUNT_COMMANDS
 import me.bgerstle.sendmo.app.account.KafkaAccountService.Topics.ACCOUNT_COMMAND_REPLIES
 import me.bgerstle.sendmo.app.kafka.JSONSerde
 import me.bgerstle.sendmo.app.kafka.KafkaConfig
 import me.bgerstle.sendmo.domain.*
-import org.apache.kafka.clients.consumer.Consumer
+import org.apache.kafka.clients.admin.AdminClient
+import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization.Serdes
 import org.springframework.stereotype.Service
+import reactor.core.Disposable
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.SignalType
 import reactor.kafka.receiver.KafkaReceiver
 import reactor.kafka.receiver.ReceiverOptions
 import reactor.kafka.sender.KafkaSender
 import reactor.kafka.sender.SenderOptions
 import reactor.kafka.sender.SenderRecord
+import reactor.kotlin.core.publisher.toFlux
 import java.util.*
+
+typealias AccountsMap = Map<AccountID, Account>
 
 @Service
 class KafkaAccountService(
@@ -34,7 +46,26 @@ class KafkaAccountService(
             .withValueSerializer(JSONSerde<OpenAccount>().serializer())
     )
 
-    override fun accounts(): Flux<Collection<Account>> = TODO("Interactive state store / global table query?")
+    private val accountsFlow = MutableStateFlow<AccountsMap>(emptyMap())
+
+    private val accountsFlowDisposable: Disposable
+
+    init {
+        accountsFlowDisposable = createAccountsReceiver()
+            .receive()
+            .subscribe { record ->
+                record.value()?.let { account ->
+                    accountsFlow.update { accountsMap ->
+                        accountsMap + (account.accountID to account as Account)
+                    }
+                }
+            }
+    }
+
+    // FIXME: re-emits intermediate results each time
+    // FIXME: will break if repartitioned
+    override fun accounts(): Flux<Collection<Account>> = accountsFlow.map { it.values }.asFlux()
+
 
     override fun <R : AccountReply> enqueue(command: AccountCommand<R>): Mono<R> {
         when (command) {
@@ -90,6 +121,17 @@ class KafkaAccountService(
             .let { KafkaReceiver.create(it) }
     }
 
+    fun createAccountsReceiver(): KafkaReceiver<UUID, AccountAggregate> =
+        ReceiverOptions.create<UUID, AccountAggregate>()
+            .withKeyDeserializer(Serdes.UUID().deserializer())
+            .withValueDeserializer(JSONSerde<AccountAggregate>().deserializer())
+            .consumerProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.bootstrapServers)
+            .consumerProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+            .consumerProperty(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed")
+            .consumerProperty(ConsumerConfig.GROUP_ID_CONFIG, "in-memory-accounts-${UUID.randomUUID()}")
+            .subscription(listOf(ACCOUNTS))
+            .let { KafkaReceiver.create(it) }
+
     object Topics {
         val ACCOUNT_COMMANDS = "account-commands"
         val ACCOUNT_EVENTS = "account-events"
@@ -97,3 +139,4 @@ class KafkaAccountService(
         val ACCOUNT_COMMAND_REPLIES = "account-commands-replies"
     }
 }
+
