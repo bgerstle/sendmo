@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sendmo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<!--<script type="text/javascript">-->
+<!--    window.onload = setupRefresh;-->
+
+<!--    function setupRefresh() {-->
+<!--        setTimeout("refreshPage();", 5000); // refresh rate in milliseconds-->
+<!--    }-->
+
+<!--    function refreshPage() {-->
+<!--        window.location = location.href;-->
+<!--    }-->
+<!--</script>-->
+<div class="accountList" th:unless="${#lists.isEmpty(accounts)}">
+
+    <h2>Accounts</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Account ID</th>
+            <th>Balance</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="ac : ${accounts}">
+            <td th:text="${ac.accountID}"></td>
+            <td th:text="${ac.balance}"></td>
+            <td th:text="${ac.accountStatus}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

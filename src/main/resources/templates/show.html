@@ -1,0 +1,13 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+  <title>Sendmo</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+  <h2>Account Info:</h2>
+  <p th:text="'ID: ' + ${account.accountID}"/>
+  <p th:text="'Balance: ' + ${account.balance}"/>
+  <p th:text="'Status: ' + ${account.accountStatus}"/>
+</body>
+</html>
